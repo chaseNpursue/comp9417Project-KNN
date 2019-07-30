@@ -130,7 +130,7 @@ def classification(X_train, Y_train, X_test, k=5, distance='Euclidean', weighted
             print("Unknown distance")
             exit(1)
             
-        if weighted==True:
+        if weighted:
             w = calculate_weight(d)
             vals.append([w, Y_train[i]])
         else: 
@@ -143,7 +143,7 @@ def classification(X_train, Y_train, X_test, k=5, distance='Euclidean', weighted
 
     return unique_elem[freq.argmax()]
 
-def regression(x_train, y_train, test_data_final_x, k=5, distance='Euclidean', weighted='True'):
+def regression(x_train, y_train, test_data_final_x, k=5, distance='Euclidean', weighted=True):
     numeric_predictions = []
     distances = []
     for i in range(len(x_train)):
@@ -195,7 +195,7 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
         x_in = np.concatenate((data_X[:i], data_X[i + 1:]))
         y_in = np.concatenate((data_Y[:i], data_Y[i + 1:]))
         x_out = data_X[i]
-        y_out = knn(x_in, y_in, x_out, k=5,_type='classification', distance='Euclidean', weighted=True)
+        y_out = knn(x_in, y_in, x_out, k,_type, distance, weighted)
         err += np.square(data_Y[i] - y_out)
         
     err = err/len(data_X)    
@@ -204,4 +204,4 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
 
 
 if __name__ == "__main__":
-    loocv('Automobile', 'regression', 5, 'Euclidean', True)
+    loocv('Ionosphere', 'classification', 5, 'Euclidean', True)
