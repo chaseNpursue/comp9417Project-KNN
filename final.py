@@ -1,5 +1,7 @@
 import numpy as np
 import csv
+from random import random
+import os
 
 # k 
 k = 5
@@ -91,11 +93,15 @@ def getAutomobileData(noncontinuous=False):
     data = np.array(data)
     return data[:,:-1], data[:, -1]
 
-def getData(dataset):
+def getData(dataset, p=0.6, features=4, N=200):
     if dataset == 'Ionosphere': 
         return getIonosphereData()
     elif dataset == 'Automobile':
         return getAutomobileData()
+    elif dataset == 'Custom':
+        if 'dataset.data' not in os.listdir('.'):
+            generateDataset(p, features, N)
+        return retrieveDataset()
     else:
         print("Unknown Dataset Name")
         exit(1)
@@ -187,8 +193,11 @@ def knn(X_train, Y_train, X_test, k=5, _type='classification', distance='Euclide
         print("Invalid operation type")
         exit(1)
         
-def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean', weighted=True):
-    data_X, data_Y = getData(dataset)
+def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean', weighted=True, p=0.6, features=4, N=200):
+    if dataset == 'Custom':
+        data_X, data_Y = getData(dataset, p=p, features=features, N=N)
+    else: 
+        data_X, data_Y = getData(dataset)
 
     err = 0
     for i in range(len(data_X)):
@@ -202,6 +211,42 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
 
     print("Error by Leave One Out Cross Validation is " + str(err))
 
+def generateDataset(p=0.6, features=4, N=200):
+    with open('dataset.data', 'a+') as f:
+        for i in range(N):
+            num = random()
+            if num <= p:
+                n_class = 0
+            else: 
+                n_class = 1
+
+            for k in range(features):
+                f.write(str(num) + ',')
+
+            f.write(str(n_class) + '\n')
+
+        
+def retrieveDataset():
+    data = []
+    with open('dataset.data') as f:
+        csv_reader = csv.reader(f, delimiter=',')
+        for row in csv_reader:
+            for i in range(len(row)):
+                row[i] = float(row[i])
+
+            data.append(row)
+
+    data = np.array(data)
+    return data[:, :-1], data[:, -1]
 
 if __name__ == "__main__":
-    loocv('Ionosphere', 'classification', 5, 'Euclidean', True)
+    # Dataset is 'Custom', 'Ionosphere', 'Automobile' # If custom dataset is not present in the current directory when Custom option is used, it will be created with following settings
+    # Type is 'classification' or 'regression'
+    # k is k for nearest neighbors
+    # Distance is 'Euclidean' or 'Manhattan'
+    # Weighted is True or False
+    # p is probability between [0,1] (not sure)                         # only active when custom option is used AND dataset doesn't exist in current directory
+    # features is the number of columns in the custom dataset           # only active when custom option is used AND dataset doesn't exist in current directory
+    # N is number of samples in the custom dataset                      # only active when custom option is used AND dataset doesn't exist in current directory
+    loocv('Custom', 'classification', 5, 'Euclidean', True, 0.6, 4, 200)
+
