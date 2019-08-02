@@ -214,14 +214,14 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
 def generateDataset(p=0.6, features=4, N=200):
     with open('dataset.data', 'a+') as f:
         for i in range(N):
-            num = random()
+            for n in range(features):
+                num = random()
+                f.write(str(num) + ',')
+
             if num <= p:
                 n_class = 0
             else: 
                 n_class = 1
-
-            for k in range(features):
-                f.write(str(num) + ',')
 
             f.write(str(n_class) + '\n')
 
