@@ -211,21 +211,58 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
 
     print("Error by Leave One Out Cross Validation is " + str(err))
 
-def generateDataset(p=0.6, features=4, N=200):
+def generateDataset(N=200):
     with open('dataset.data', 'a+') as f:
+        f.truncate(0)
         for i in range(N):
-            for n in range(features):
-                num = random()
-                f.write(str(num) + ',')
+            f1, f2, f3, f4 = round(random()), round(random()), round(random()), round(random())
+            c = targetFunction(f1, f2, f3, f4)       
+            f.write(str(f1) + ',' + str(f2) + ',' + str(f3) + ',' + str(f4) + ',' + str(c) + '\n')
 
-            if num <= p:
-                n_class = 0
-            else: 
-                n_class = 1
+def class1prob(f1, f2, f3, f4):
+    p1, p2, p3, p4 = 0.73, 0.82, 0.91, 0
+    class1 = 0.55
+    e1, e2, e3, e4 = 0.4, 0.675, 0.95, 0.45
+    if not f1:
+        p1 = 1 - p1
+        e1 = 1 - e1
+    if not f2:
+        p2 = 1 - p2
+        e2 = 1 - e2
+    if not f3:
+        p3 = 1 - p3
+        e3 = 1 - e3
+    if not f4:
+        p4 = 1 - p4
+        e4 = 1 - e4
 
-            f.write(str(n_class) + '\n')
+    return (p1 * p2 * p3 * p4 * class1) / (e1 * e2 * e3 * e4)
 
+def class2prob(f1, f2, f3, f4):
+    p1, p2, p3, p4 = 0, 0.5, 1, 1
+    class2 = 0.45
+    e1, e2, e3, e4 = 0.4, 0.675, 0.95, 0.45
+    if not f1:
+        p1 = 1 - p1
+        e1 = 1 - e1
+    if not f2:
+        p2 = 1 - p2
+        e2 = 1 - e2
+    if not f3:
+        p3 = 1 - p3
+        e3 = 1 - e3
+    if not f4:
+        p4 = 1 - p4
+        e4 = 1 - e4
+
+    return (p1 * p2 * p3 * p4 * class2) / (e1 * e2 * e3 * e4)
         
+def targetFunction(f1, f2, f3, f4):
+    p = class1prob(f1, f2, f3, f4), class2prob(f1, f2, f3, f4)
+    return np.argmax(p)
+
+
+
 def retrieveDataset():
     data = []
     with open('dataset.data') as f:
@@ -245,8 +282,8 @@ if __name__ == "__main__":
     # k is k for nearest neighbors
     # Distance is 'Euclidean' or 'Manhattan'
     # Weighted is True or False
-    # p is probability between [0,1] (not sure)                         # only active when custom option is used AND dataset doesn't exist in current directory
-    # features is the number of columns in the custom dataset           # only active when custom option is used AND dataset doesn't exist in current directory
     # N is number of samples in the custom dataset                      # only active when custom option is used AND dataset doesn't exist in current directory
-    loocv('Custom', 'classification', 5, 'Euclidean', True, 0.6, 4, 200)
+    # loocv('Custom', 'classification', 5, 'Euclidean', True, 0.6, 4, 200)
+    generateDataset(200)
+    
 
