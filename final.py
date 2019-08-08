@@ -223,44 +223,66 @@ def class1prob(f1, f2, f3, f4):
     p1, p2, p3, p4 = 0.73, 0.82, 0.91, 0
     class1 = 0.55
     e1, e2, e3, e4 = 0.4, 0.675, 0.95, 0.45
-    if not f1:
+    if f1 == 0:
         p1 = 1 - p1
         e1 = 1 - e1
-    if not f2:
+        return (p1 * p2 * p3 * p4 * class1)
+    if f2 == 0:
         p2 = 1 - p2
         e2 = 1 - e2
-    if not f3:
+        return (p1 * p2 * p3 * p4 * class1)
+    if f3 == 0:
         p3 = 1 - p3
         e3 = 1 - e3
-    if not f4:
+        return (p1 * p2 * p3 * p4 * class1)
+    if f4 == 0:
         p4 = 1 - p4
         e4 = 1 - e4
+        return (p1 * p2 * p3 * p4 * class1)
 
-    return (p1 * p2 * p3 * p4 * class1) / (e1 * e2 * e3 * e4)
+    return (p1 * p2 * p3 * p4 * class1)
 
 def class2prob(f1, f2, f3, f4):
     p1, p2, p3, p4 = 0, 0.5, 1, 1
     class2 = 0.45
     e1, e2, e3, e4 = 0.4, 0.675, 0.95, 0.45
-    if not f1:
+    if f1 == 0:
         p1 = 1 - p1
         e1 = 1 - e1
-    if not f2:
+        return (p1 * p2 * p3 * p4 * class2)
+    if f2 == 0:
         p2 = 1 - p2
         e2 = 1 - e2
-    if not f3:
+        return (p1 * p2 * p3 * p4 * class2)
+    if f3 == 0:
         p3 = 1 - p3
         e3 = 1 - e3
-    if not f4:
+        return (p1 * p2 * p3 * p4 * class2)
+    if f4 == 0:
         p4 = 1 - p4
         e4 = 1 - e4
+        return (p1 * p2 * p3 * p4 * class2)
 
-    return (p1 * p2 * p3 * p4 * class2) / (e1 * e2 * e3 * e4)
+    return (p1 * p2 * p3 * p4 * class2)
         
 def targetFunction(f1, f2, f3, f4):
     p = class1prob(f1, f2, f3, f4), class2prob(f1, f2, f3, f4)
     return np.argmax(p)
 
+
+def bayeserror():
+    f,c = retrieveDataset()
+    err = []
+    for i in range(len(f)):
+        if c[i] == 0:
+            error = class2prob(f[i][0], f[i][1], f[i][2], f[i][3])
+            #print(error)
+            err.append(error)
+        elif c[i] == 1:
+            error = class1prob(f[i][0], f[i][1], f[i][2], f[i][3])
+            #print(error)
+            err.append(error)
+    return sum(err)
 
 
 def retrieveDataset():
@@ -284,6 +306,9 @@ if __name__ == "__main__":
     # Weighted is True or False
     # N is number of samples in the custom dataset                      # only active when custom option is used AND dataset doesn't exist in current directory
     # loocv('Custom', 'classification', 5, 'Euclidean', True, 0.6, 4, 200)
-    generateDataset(200)
+    #generateDataset(200)
+    #print(retrieveDataset())
+    print(bayeserror()) #17.32499999999999
+
     
 
