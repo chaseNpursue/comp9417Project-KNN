@@ -93,14 +93,14 @@ def getAutomobileData(noncontinuous=False):
     data = np.array(data)
     return data[:,:-1], data[:, -1]
 
-def getData(dataset, p=0.6, features=4, N=200):
+def getData(dataset, N=200):
     if dataset == 'Ionosphere': 
         return getIonosphereData()
     elif dataset == 'Automobile':
         return getAutomobileData()
     elif dataset == 'Custom':
         if 'dataset.data' not in os.listdir('.'):
-            generateDataset(p, features, N)
+            generateDataset(N)
         return retrieveDataset()
     else:
         print("Unknown Dataset Name")
@@ -193,9 +193,9 @@ def knn(X_train, Y_train, X_test, k=5, _type='classification', distance='Euclide
         print("Invalid operation type")
         exit(1)
         
-def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean', weighted=True, p=0.6, features=4, N=200):
+def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean', weighted=True, N=200):
     if dataset == 'Custom':
-        data_X, data_Y = getData(dataset, p=p, features=features, N=N)
+        data_X, data_Y = getData(dataset, N=N)
     else: 
         data_X, data_Y = getData(dataset)
 
@@ -210,6 +210,7 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
     err = err/len(data_X)    
 
     print("Error by Leave One Out Cross Validation is " + str(err))
+    return err
 
 def generateDataset(N=200):
     with open('dataset.data', 'a+') as f:
@@ -305,10 +306,30 @@ if __name__ == "__main__":
     # Distance is 'Euclidean' or 'Manhattan'
     # Weighted is True or False
     # N is number of samples in the custom dataset                      # only active when custom option is used AND dataset doesn't exist in current directory
-    # loocv('Custom', 'classification', 5, 'Euclidean', True, 0.6, 4, 200)
+    loocv('Custom', 'classification', 5, 'Euclidean', True, 200)
     #generateDataset(200)
     #print(retrieveDataset())
-    print(bayeserror()) #17.32499999999999
+    # print(bayeserror()) #17.32499999999999
+
+
+    # with open("table.txt", "a+") as f:
+    #     f.truncate(0)
+    #     for i in range(1,11):
+    #         f.write(str(i))
+    #         print("KNN with L1 at k " + str(i) + "\n   ", end='')
+    #         err = loocv('Ionosphere', 'classification', i, 'Manhattan', False, 200)
+    #         f.write(" " + str(err))
+    #         print("WNN with L1 at k " + str(i) + "\n   ", end='')
+    #         err = loocv('Ionosphere', 'classification', i, 'Manhattan', True, 200)
+    #         f.write(" " + str(err))
+
+    #         print("KNN with L2 at k " + str(i) + "\n   ", end='')
+    #         err = loocv('Ionosphere', 'classification', i, 'Euclidean', False, 200)
+    #         f.write(" " + str(err))
+    #         print("WNN with L2 at k " + str(i) + "\n   ", end='')
+    #         err = loocv('Ionosphere', 'classification', i, 'Euclidean', True, 200)
+    #         f.write(" " + str(err) + "\n")
+
 
     
 
