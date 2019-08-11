@@ -2,6 +2,7 @@ import numpy as np
 import csv
 from random import random
 import os
+import pandas as pd
 
 # k 
 k = 5
@@ -127,27 +128,62 @@ def getFirstElement(val):
 # https://www.analyticsvidhya.com/blog/2018/03/introduction-k-neighbours-algorithm-clustering/
 def classification(X_train, Y_train, X_test, k=5, distance='Euclidean', weighted=True):
     vals = []
+    distances = []
     for i in range(len(X_train)):
         if distance == 'Euclidean':
             d = euclidean_distance(X_train[i], X_test)
+            distances.append(d)
         elif distance == 'Manhattan':
             d = manhattan_distance(X_train[i], X_test)
+            distances.append(d)
         else:
             print("Unknown distance")
             exit(1)
-            
+    sorted_index_distances = np.argsort(distances)
+    # print(sorted_index_distances)
+    final_weight = 0
+    for i in sorted_index_distances[:k]:
         if weighted:
-            w = calculate_weight(d)
-            vals.append([w, Y_train[i]])
-        else: 
-            vals.append([d, Y_train[i]])
+            if distances[i] == 0:
+                w = 1
+                vals.append([w, Y_train[i]])
 
-        
+                #train.append(Y_train[i])
+            else:
+                w = calculate_weight(distances[i])
+                vals.append([w, Y_train[i]])
+            #final_weight += w
+        else:
+            vals.append(Y_train[i])
+            #print('vals:',vals)
+    if weighted:
+        for j in range(len(vals)):
+            count_zero = 0
+            count_one = 0
+            total_weight_zero = 0
+            total_weight_one = 0
+            if vals[j][1] == 0:
+                count_zero += 1
+                total_weight_zero += vals[j][0]
+            else:
+                count_one += 1
+                total_weight_one += vals[j][0]
+        return (1 if (total_weight_one * count_one >= total_weight_zero * count_zero) else 0)
+    else:
+        result = pd.value_counts(vals, sort=True)
+        a = result.to_dict()
+        k = list(a.keys())
+        #v = list(a.values())
+        return k[0]
+
+    #print(v)
+    '''
     vals.sort(key=getFirstElement)
-    preds = np.asarray(vals)[:k, -1] 
+    preds = np.asarray(vals)[:k, -1]
     unique_elem, freq = np.unique(preds, return_counts=True)
 
     return unique_elem[freq.argmax()]
+    '''
 
 def regression(x_train, y_train, test_data_final_x, k=5, distance='Euclidean', weighted=True):
     numeric_predictions = []
@@ -204,7 +240,8 @@ def loocv(dataset='Ionosphere', _type='classification', k=5, distance='Euclidean
         x_in = np.concatenate((data_X[:i], data_X[i + 1:]))
         y_in = np.concatenate((data_Y[:i], data_Y[i + 1:]))
         x_out = data_X[i]
-        y_out = knn(x_in, y_in, x_out, k,_type, distance, weighted)
+        y_out = knn(x_in, y_in, x_out, k, _type, distance, weighted)
+        #print(y_out)
         err += np.square(data_Y[i] - y_out)
         
     err = err/len(data_X)    
@@ -306,10 +343,10 @@ if __name__ == "__main__":
     # Distance is 'Euclidean' or 'Manhattan'
     # Weighted is True or False
     # N is number of samples in the custom dataset                      # only active when custom option is used AND dataset doesn't exist in current directory
-    loocv('Custom', 'classification', 5, 'Euclidean', True, 200)
+    loocv('Custom', 'classification', 64, 'Manhattan', False, 200)
     #generateDataset(200)
     #print(retrieveDataset())
-    # print(bayeserror()) #17.32499999999999
+    #print(bayeserror()) #17.32499999999999
 
 
     # with open("table.txt", "a+") as f:
